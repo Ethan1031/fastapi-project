@@ -39,7 +39,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    runs-on: macos-latest # Specify operating system, like linux, mac or window.
+    runs-on: ubuntu-latest # Specify operating system, like linux, mac(macos-latest) or window.
     steps:
       - name: Pulling git repo
         uses: actions/checkout@v2
