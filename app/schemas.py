@@ -25,8 +25,8 @@ class Post(BaseModel):
     content: str
     owner_id: int
     owner: UserOut
-    # published: bool
-    # created_at: datetime
+    published: bool
+    created_at: datetime
     # To tell our sqlalchemy ignore our response data is dictionary, convert it to json and response
     class Config:
         from_attributes = True

@@ -1,0 +1,33 @@
+version: "3.9" # Specify the Docker Compose version.
+
+services:
+  api:
+    image: ethan1031/fastapi
+    depends_on:
+      - postgres
+    ports:
+      - 80:8000 # (Maybe need to listen to 80, which is a web browser.)
+    # volumes: (we no need bind mount in production)
+    #   - ./:/usr/src/app:ro
+    # command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload (We not need reload command in production)
+    environment:
+      DATABASE_HOSTNAME: ${DATABASE_HOSTNAME}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM}
+      ACCESS_TOKEN_EXPIRES_MINUTES: ${ACCESS_TOKEN_EXPIRES_MINUTES}
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+
+volumes:
+  postgres-db:

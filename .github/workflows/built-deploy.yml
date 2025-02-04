@@ -1,0 +1,22 @@
+Name: Build and Deploy Code
+
+# on: # Some actions triggered it like push, merge or both [push, pull_request]
+#   push:
+#     branches: # Put some branches you wanna update here like main, or both ["main", "another branch"]
+#       - "main"
+#       - "another branches"
+#   pull_request:
+#     branches:
+#       - "test_branch"
+
+on: [push, pull_request] # define these actions to trigger our workflow
+
+# Next, create a job, which is a list of steps
+jobs:
+  job1:
+    runs-on: macos-latest # Specify operating system, like linux, mac or window.
+    steps:
+      - name: Pulling git repo
+        uses: actions/checkout@v2
+      - name: Say hi to ethan
+        uses: echo "hello ethan"
