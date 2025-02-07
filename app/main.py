@@ -31,5 +31,5 @@ app.include_router(vote.router)
 
 @app.get("/", status_code=status.HTTP_200_OK)
 def root():
-    return {"message": "Hello World"}
+    return {"message": "Hello World and successfully deployed from CICD pipeline"}
 

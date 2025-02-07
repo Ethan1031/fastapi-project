@@ -13,7 +13,7 @@ on: [push, pull_request] # define these actions to trigger our workflow
 
 # Next, create a job, which is a list of steps
 jobs:
-  job1:
+  build:
     environment:
       name: testing
     env:
@@ -64,22 +64,66 @@ jobs:
           username: ${{secrets.DOCKER_HUB_USERNAME}}
           password: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
 
+      # We always don't use docker in production, so now i just comment below code out
       # Optimize our process so that not need to reinstall anything, save money and time!!!
+      # - name: Set up Docker Buildx
+      #   id: buildx
+      #   uses: docker/setup-buildx-action@v1
 
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
+      # - name: Build and push
+      #   id: docker_build
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: ./
+      #     file: ./Dockerfile
+      #     builder: ${{ steps.buildx.outputs.name }}
+      #     push: true
+      #     tags: ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi:latest
+      #     cache-from: type=local,src=/tmp/.buildx-cache
+      #     cache-to: type=local,dest=/tmp/.buildx-cache
+      # - name: Image digest
+      #   run: echo ${{ steps.docker_build.outputs.digest }}
 
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
+
+# For the deploy steps: 
+# 1. pull our github repo
+# 2. install heroku cli
+# 3. heroku login
+# 4. add git remote for heroku
+# 5. git push reroku main
+
+# Instead of manually provide action of above steps, we can choose some in marketplace, which deploying to heroku then directly copy the code.
+
+  deploy:
+    runs-on: ubuntu-latest
+      need: [build]
+    environment:
+      name: production
+    steps:
+      - name: pulling git repo
+        uses: actions/checkout@v2
+      - name: deploying to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
-          context: ./
-          file: ./Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+
+      - name: deploy to ubuntu server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.PROD_HOST}}
+          username: ${{secrets.PROD_USERNAME}}
+          password: ${{secrets.PROD_PASSWORD}}
+          script: |
+            cd app/src
+            git pull
+            echo ${{secrets.PROD_PASSWORD}} | sudo -S systemctl restart api
+      # login to our ubuntu
+      # cd /app/src
+      # git pull
+      # systemctl restart api
+
+
+
+
